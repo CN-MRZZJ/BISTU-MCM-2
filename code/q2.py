@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 from scipy.optimize import lsq_linear
@@ -12,6 +13,12 @@ from scipy.optimize import lsq_linear
 
 THRESHOLD = 37.0
 SEASON_DAYS = 365.0
+
+
+def filter_sort_key(filter_no: str) -> tuple[str, int]:
+    prefix = "".join(ch for ch in filter_no if not ch.isdigit())
+    digits = "".join(ch for ch in filter_no if ch.isdigit())
+    return prefix, int(digits) if digits else -1
 
 
 @dataclass(frozen=True)
@@ -149,7 +156,7 @@ def add_decay_terms(
 
 
 def design_matrix(frame: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
-    filters = sorted(frame["filter_no"].unique())
+    filters = sorted(frame["filter_no"].unique(), key=filter_sort_key)
     x_parts: list[np.ndarray] = []
     names: list[str] = []
 
@@ -245,7 +252,7 @@ def maintenance_intervals(events: pd.DataFrame) -> pd.DataFrame:
         )
         global_means[maintenance_type] = float(diffs.mean()) if len(diffs) else 90.0
 
-    for filter_no in sorted(events["filter_no"].unique()):
+    for filter_no in sorted(events["filter_no"].unique(), key=filter_sort_key):
         for maintenance_type in ["中维护", "大维护"]:
             e = events[
                 (events["filter_no"] == filter_no)
@@ -513,7 +520,7 @@ def save_plots(
 ) -> None:
     plt.rcParams["axes.unicode_minus"] = False
 
-    filters = sorted(history["filter_no"].unique())
+    filters = sorted(history["filter_no"].unique(), key=filter_sort_key)
     nrows = int(np.ceil(len(filters) / 2))
     fig, axes = plt.subplots(nrows, 2, figsize=(14, max(10, nrows * 2.4)), sharex=False)
     axes = np.ravel(axes)
@@ -546,6 +553,12 @@ def save_plots(
         ax.set_ylim(y_min, y_max + 5)
         ax.set_title(filter_no)
         ax.set_ylabel("Permeability")
+        years = max(1, int(np.ceil((f_plot["date"].max() - h["date"].min()).days / 365.25)))
+        year_interval = max(1, int(np.ceil(years / 4)))
+        ax.xaxis.set_major_locator(mdates.YearLocator(base=year_interval))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+        ax.tick_params(axis="x", labelsize=7, rotation=0)
+        ax.tick_params(axis="y", labelsize=8)
         ax.grid(alpha=0.2)
 
     for ax in axes[len(filters) :]:
@@ -638,7 +651,7 @@ def run(cfg: Config) -> None:
                 int(panel.loc[panel["filter_no"] == filter_no, "day_index"].max())
                 + cfg.max_forecast_years * 365,
             )
-            for filter_no in sorted(panel["filter_no"].unique())
+            for filter_no in sorted(panel["filter_no"].unique(), key=filter_sort_key)
         ],
         ignore_index=True,
     )

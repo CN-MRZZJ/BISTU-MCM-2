@@ -1,8 +1,6 @@
 ﻿filter_no,maintenance_type,avg_interval_days,interval_source,last_event_day_index,last_event_date,event_count
 A1,中维护,73.11111111111111,filter_mean,703.0,2026-03-07,10
 A1,大维护,347.0,filter_mean,590.0,2025-11-14,2
-A10,中维护,74.44444444444444,filter_mean,721.0,2026-03-26,10
-A10,大维护,262.5,filter_mean,637.0,2026-01-01,3
 A2,中维护,80.75,filter_mean,708.0,2026-03-12,9
 A2,大维护,57.5,filter_mean,666.0,2026-01-29,3
 A3,中维护,67.6,filter_mean,731.0,2026-04-05,11
@@ -19,3 +17,5 @@ A8,中维护,55.583333333333336,filter_mean,725.0,2026-03-31,13
 A8,大维护,205.44444444444446,global_mean,,,0
 A9,中维护,63.4,filter_mean,689.0,2026-02-23,11
 A9,大维护,321.0,filter_mean,726.0,2026-04-01,2
+A10,中维护,74.44444444444444,filter_mean,721.0,2026-03-26,10
+A10,大维护,262.5,filter_mean,637.0,2026-01-01,3
